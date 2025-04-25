@@ -5,8 +5,118 @@ const {
   NewsArticleAggregatorSource,
 } = require("newsnexus07db");
 const { writeResponseDataFromNewsAggregator } = require("./common");
-const fs = require("fs");
-const path = require("path");
+// const fs = require("fs");
+// const path = require("path");
+
+async function makeGNewsApiRequestDetailed(
+  sourceObj,
+  startDate,
+  endDate,
+  keywordsAnd,
+  keywordsOr,
+  keywordsNot
+) {
+  console.log("- in makeGNewsApiRequestDetailed");
+  console.log(`keywordsAnd: ${keywordsAnd}`);
+
+  function splitPreservingQuotes(str) {
+    return str.match(/"[^"]+"|\S+/g)?.map((s) => s.trim()) || [];
+  }
+
+  const andArray = splitPreservingQuotes(keywordsAnd ? keywordsAnd : "");
+  const orArray = splitPreservingQuotes(keywordsOr ? keywordsOr : "");
+  const notArray = splitPreservingQuotes(keywordsNot ? keywordsNot : "");
+
+  console.log(`andArray: ${andArray}`);
+
+  // Step 1: prepare token and dates
+  const token = sourceObj.apiKey;
+  if (!endDate) {
+    endDate = new Date().toISOString().split("T")[0];
+  }
+  if (!startDate) {
+    // startDate should be 29 days prior to endDate - account limitation
+    startDate = new Date(new Date().setDate(new Date().getDate() - 90))
+      .toISOString()
+      .split("T")[0];
+  }
+
+  let queryParams = [];
+
+  console.log(`startDate: ${startDate}`);
+  const andPart = andArray.length > 0 ? andArray.join(" AND ") : "";
+  const orPart = orArray.length > 0 ? `(${orArray.join(" OR ")})` : "";
+  const notPart =
+    notArray.length > 0 ? notArray.map((k) => `NOT ${k}`).join(" AND ") : "";
+
+  const fullQuery = [andPart, orPart, notPart].filter(Boolean).join(" AND ");
+  console.log(`fullQuery: ${fullQuery}`);
+  if (fullQuery) {
+    queryParams.push(`q=${encodeURIComponent(fullQuery)}`);
+  }
+
+  if (startDate) {
+    queryParams.push(`from=${startDate}`);
+  }
+
+  if (endDate) {
+    queryParams.push(`to=${endDate}`);
+  }
+  queryParams.push(`max=100`);
+
+  // Always required
+  queryParams.push("lang=en");
+  queryParams.push("country=us");
+  queryParams.push(`apikey=${sourceObj.apiKey}`);
+
+  const requestUrl = `${sourceObj.url}search?${queryParams.join("&")}`;
+  console.log(` [in makeGNewsApiRequestDetailed] requestUrl: ${requestUrl}`);
+  console.log(` [in makeGNewsApiRequestDetailed] queryParams: ${queryParams}`);
+
+  let status = "success";
+  let requestResponseData = null;
+  let newsApiRequestObj = null;
+  if (process.env.ACTIVATE_API_REQUESTS_TO_OUTSIDE_SOURCES === "true") {
+    console.log(`🚧 This line executes before the error 🚧`);
+    console.log(requestUrl);
+    const response = await fetch(requestUrl);
+
+    console.log(`response_statue: ${response.status}`);
+    requestResponseData = await response.json();
+    console.log(requestResponseData);
+
+    if (!requestResponseData?.articles) {
+      status = "error";
+      console.log(`🚧 Here is the error 🚧`);
+      writeResponseDataFromNewsAggregator(
+        sourceObj.id,
+        { id: "failed", url: requestUrl },
+        requestResponseData,
+        true
+      );
+      // ⛔ Kill the process immediately
+      console.error("No articles received from GNews API. Exiting...");
+      process.exit(1); // 👈 this ends the entire Node.js process
+    }
+
+    // Step 4: create new NewsApiRequest
+    newsApiRequestObj = await NewsApiRequest.create({
+      newsArticleAggregatorSourceId: sourceObj.id,
+      dateStartOfRequest: startDate,
+      dateEndOfRequest: new Date(),
+      countOfArticlesReceivedFromRequest: requestResponseData.articles?.length,
+      status,
+      url: requestUrl,
+      andString: keywordsAnd,
+      orString: keywordsOr,
+      notString: keywordsNot,
+    });
+  } else {
+    newsApiRequestObj = requestUrl;
+  }
+
+  return { requestResponseData, newsApiRequestObj };
+}
 
 // Store the articles of a single request in Aritcle and update NewsApiRequest
 async function storeGNewsArticles(
@@ -19,6 +129,7 @@ async function storeGNewsArticles(
     where: { nameOfOrg: "GNews" },
     include: [{ model: EntityWhoFoundArticle }],
   });
+  console.log("---> why is this firing before the others ???");
 
   const entityWhoFoundArticleId = gNewsSource.EntityWhoFoundArticle?.id;
   try {
@@ -69,105 +180,6 @@ async function storeGNewsArticles(
       // newsApiRequest.url
     );
   }
-}
-
-async function makeGNewsApiRequestDetailed(
-  sourceObj,
-  startDate,
-  endDate,
-  keywordsAnd,
-  keywordsOr,
-  keywordsNot
-) {
-  console.log("- in makeGNewsApiRequestDetailed");
-
-  function splitPreservingQuotes(str) {
-    return str.match(/"[^"]+"|\S+/g)?.map((s) => s.trim()) || [];
-  }
-
-  const andArray = splitPreservingQuotes(keywordsAnd ? keywordsAnd : "");
-  const orArray = splitPreservingQuotes(keywordsOr ? keywordsOr : "");
-  const notArray = splitPreservingQuotes(keywordsNot ? keywordsNot : "");
-
-  console.log(`andArray: ${andArray}`);
-
-  // Step 1: prepare token and dates
-  const token = sourceObj.apiKey;
-  if (!endDate) {
-    endDate = new Date().toISOString().split("T")[0];
-  }
-  if (!startDate) {
-    // startDate should be 29 days prior to endDate - account limitation
-    startDate = new Date(new Date().setDate(new Date().getDate() - 29))
-      .toISOString()
-      .split("T")[0];
-  }
-
-  let queryParams = [];
-
-  console.log(`startDate: ${startDate}`);
-  const andPart = andArray.length > 0 ? andArray.join(" AND ") : "";
-  const orPart = orArray.length > 0 ? `(${orArray.join(" OR ")})` : "";
-  const notPart =
-    notArray.length > 0 ? notArray.map((k) => `NOT ${k}`).join(" AND ") : "";
-
-  const fullQuery = [andPart, orPart, notPart].filter(Boolean).join(" AND ");
-  console.log(`fullQuery: ${fullQuery}`);
-  if (fullQuery) {
-    queryParams.push(`q=${encodeURIComponent(fullQuery)}`);
-  }
-
-  if (startDate) {
-    queryParams.push(`from=${startDate}`);
-  }
-
-  if (endDate) {
-    queryParams.push(`to=${endDate}`);
-  }
-  queryParams.push(`max=100`);
-
-  // Always required
-  queryParams.push("lang=en");
-  queryParams.push("country=us");
-  queryParams.push(`apikey=${sourceObj.apiKey}`);
-
-  const requestUrl = `${sourceObj.url}search?${queryParams.join("&")}`;
-  console.log(` [in makeGNewsApiRequestDetailed] requestUrl: ${requestUrl}`);
-  console.log(` [in makeGNewsApiRequestDetailed] queryParams: ${queryParams}`);
-
-  let status = "success";
-  let requestResponseData = null;
-  let newsApiRequestObj = null;
-  if (process.env.ACTIVATE_API_REQUESTS_TO_OUTSIDE_SOURCES === "true") {
-    const response = await fetch(requestUrl);
-    requestResponseData = await response.json();
-
-    if (!requestResponseData.articles) {
-      status = "error";
-      writeResponseDataFromNewsAggregator(
-        source.id,
-        { id: "failed", url: requestUrl },
-        requestResponseData,
-        true
-      );
-    }
-    // Step 4: create new NewsApiRequest
-    newsApiRequestObj = await NewsApiRequest.create({
-      newsArticleAggregatorSourceId: sourceObj.id,
-      dateStartOfRequest: startDate,
-      dateEndOfRequest: new Date(),
-      countOfArticlesReceivedFromRequest: requestResponseData.articles?.length,
-      status,
-      url: requestUrl,
-      andString: keywordsAnd,
-      orString: keywordsOr,
-      notString: keywordsNot,
-    });
-  } else {
-    newsApiRequestObj = requestUrl;
-  }
-
-  return { requestResponseData, newsApiRequestObj };
 }
 
 module.exports = {
