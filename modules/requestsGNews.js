@@ -12,20 +12,20 @@ async function makeGNewsApiRequestDetailed(
   sourceObj,
   startDate,
   endDate,
-  keywordsAnd,
-  keywordsOr,
-  keywordsNot
+  andString,
+  orString,
+  notString
 ) {
   console.log("- in makeGNewsApiRequestDetailed");
-  console.log(`keywordsAnd: ${keywordsAnd}`);
+  console.log(`andString: ${andString}`);
 
   function splitPreservingQuotes(str) {
     return str.match(/"[^"]+"|\S+/g)?.map((s) => s.trim()) || [];
   }
 
-  const andArray = splitPreservingQuotes(keywordsAnd ? keywordsAnd : "");
-  const orArray = splitPreservingQuotes(keywordsOr ? keywordsOr : "");
-  const notArray = splitPreservingQuotes(keywordsNot ? keywordsNot : "");
+  const andArray = splitPreservingQuotes(andString ? andString : "");
+  const orArray = splitPreservingQuotes(orString ? orString : "");
+  const notArray = splitPreservingQuotes(notString ? notString : "");
 
   console.log(`andArray: ${andArray}`);
 
@@ -107,9 +107,9 @@ async function makeGNewsApiRequestDetailed(
       countOfArticlesReceivedFromRequest: requestResponseData.articles?.length,
       status,
       url: requestUrl,
-      andString: keywordsAnd,
-      orString: keywordsOr,
-      notString: keywordsNot,
+      andString: andString,
+      orString: orString,
+      notString: notString,
     });
   } else {
     newsApiRequestObj = requestUrl;

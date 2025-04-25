@@ -19,4 +19,5 @@ PATH_TO_API_RESPONSE_JSON_FILES=/Users/nick/Documents/_project_resources/NewsNex
 NODE_ENV=workstation
 AUTHENTIFICATION_TURNED_OFF=false
 ACTIVATE_API_REQUESTS_TO_OUTSIDE_SOURCES=false
+PATH_AND_FILENAME_FOR_QUERY_SPREADSHEET=/Users/nickrodriguez/Downloads/NewsApiRequestAutmationSmall.xlsx
 ```

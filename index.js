@@ -5,14 +5,17 @@ const {
   storeGNewsArticles,
   makeGNewsApiRequestDetailed,
 } = require("./modules/requestsGNews");
-const keyword = ["hazard", "choke", "injury", "atv", "sports"];
+// const keywordAnd = ["hazard", "choke", "injury", "atv", "sports"];
+const keywordAnd = ["hazard", "choke"];
+const keywordOr = ["hazard", "choke", "injury", "atv", "sports"];
+const keywordNot = ["hazard", "choke", "injury", "atv", "sports"];
 
 let index = 0;
 console.log(process.env.APP_NAME);
 
 async function makeRequest() {
-  const keywordsAnd = keyword[index];
-  console.log(`keywordAnd: ${keywordsAnd}`);
+  const andString = keywordAnd[index];
+  console.log(`keywordAnd: ${andString}`);
 
   const gNewsSourceObj = await NewsArticleAggregatorSource.findOne({
     where: { nameOfOrg: "GNews" },
@@ -36,7 +39,7 @@ async function makeRequest() {
         gNewsSourceObj,
         startDate,
         endDate,
-        keywordsAnd,
+        andString,
         null,
         null
       ));
@@ -47,7 +50,7 @@ async function makeRequest() {
   // --- MODIFIED CODE (end) ---
 
   // Move to the next keyword, wrap around at the end
-  index = (index + 1) % keywordsAnd.length;
+  index = (index + 1) % andString.length;
 
   // Store articles and update NewsApiRequest
   await storeGNewsArticles(requestResponseData, newsApiRequestObj);
