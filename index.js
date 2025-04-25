@@ -73,14 +73,20 @@ async function makeRequest() {
   }
   // --- MODIFIED CODE (end) ---
 
-  // Move to the next keyword, wrap around at the end
-  // index = (index + 1) % andString.length;
-  index = (index + 1) % queryArgumentObjectsArray.length;
-
   // Store articles and update NewsApiRequest
   await storeGNewsArticles(requestResponseData, newsApiRequestObj);
   console.log("Request completed");
   console.log(`newsApiRequestObj: ${newsApiRequestObj}`);
+
+  // Move to the next keyword, wrap around at the end
+  index = (index + 1) % queryArgumentObjectsArray.length;
+
+  // Check if adjustedEndDate is today or in the future and if index has looped through all queries
+  const today = new Date().toISOString().split("T")[0];
+  if (adjustedEndDate >= today && index === 0) {
+    console.log("All queries processed up to current date. Exiting...");
+    process.exit(0);
+  }
 }
 
 // Start the interval to run once per second

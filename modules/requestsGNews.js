@@ -204,12 +204,17 @@ async function checkRequestAndModifyDates(
   if (existingRequests.length > 0) {
     const latestEndDate = existingRequests[0].dateEndOfRequest;
     const newStartDate = latestEndDate;
-    const newEndDate = new Date(
+    let newEndDate = new Date(
       new Date(newStartDate).getTime() +
         requestWindowInDays * 24 * 60 * 60 * 1000
-    )
-      .toISOString()
-      .split("T")[0];
+    );
+
+    const today = new Date();
+    if (newEndDate > today) {
+      newEndDate = today;
+    }
+
+    newEndDate = newEndDate.toISOString().split("T")[0];
     return { startDate: newStartDate, endDate: newEndDate };
   } else {
     return { startDate, endDate };
