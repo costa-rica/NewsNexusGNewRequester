@@ -21,3 +21,11 @@ AUTHENTIFICATION_TURNED_OFF=false
 ACTIVATE_API_REQUESTS_TO_OUTSIDE_SOURCES=false
 PATH_AND_FILENAME_FOR_QUERY_SPREADSHEET=/Users/nickrodriguez/Downloads/NewsApiRequestAutmationSmall.xlsx
 ```
+
+## Usage
+
+1. create an excel (.xlsx) file that has columns: id, andString, orString, notString, startDate
+2. place path and filename in .env PATH_AND_FILENAME_FOR_QUERY_SPREADSHEET
+3. run `node index.js`
+4. This will create requests for each row from startDate to startDate + 7 days -- or whatever amount of days assign in `requestWindowInDays`
+5. Loops over list of `queryArgumentObjectsArray` and checks the NewsApiRequest table for last reques to similar type then uses the dates of last request to create new startDate and endDate for search the api.

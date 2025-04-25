@@ -4,30 +4,54 @@ const { NewsArticleAggregatorSource } = require("newsnexus07db");
 const {
   storeGNewsArticles,
   makeGNewsApiRequestDetailed,
+  checkRequestAndModifyDates,
 } = require("./modules/requestsGNews");
+const {
+  readQueryParametersFromXlsxFile,
+} = require("./modules/utilitiesReadFiles");
 // const keywordAnd = ["hazard", "choke", "injury", "atv", "sports"];
-const keywordAnd = ["hazard", "choke"];
-const keywordOr = ["hazard", "choke", "injury", "atv", "sports"];
-const keywordNot = ["hazard", "choke", "injury", "atv", "sports"];
+// const keywordAnd = ["hazard", "choke"];
+// const keywordOr = ["hazard", "choke", "injury", "atv", "sports"];
+// const keywordNot = ["hazard", "choke", "injury", "atv", "sports"];
 
 let index = 0;
 console.log(process.env.APP_NAME);
 
 async function makeRequest() {
-  const andString = keywordAnd[index];
-  console.log(`keywordAnd: ${andString}`);
+  const queryArgumentObjectsArray = readQueryParametersFromXlsxFile();
+  const requestWindowInDays = 14; // how many days from startDate to endDate
+  const andString = queryArgumentObjectsArray[index].andString;
+  const orString = queryArgumentObjectsArray[index].orString;
+  const notString = queryArgumentObjectsArray[index].notString;
+  const startDate = queryArgumentObjectsArray[index].startDate;
+  const endDate = new Date(
+    new Date(startDate).setDate(
+      new Date(startDate).getDate() + requestWindowInDays
+    )
+  )
+    .toISOString()
+    .split("T")[0];
 
   const gNewsSourceObj = await NewsArticleAggregatorSource.findOne({
     where: { nameOfOrg: "GNews" },
     raw: true, // Returns data without all the database gibberish
   });
 
-  let startDate = null;
-  let endDate = null;
-  // //   console.log(`Making request to https://gnews.io/api/v4/search?q=${keyword}`);
-  // const { requestResponseData, newsApiRequestObj } =
-  //   makeGNewsApiRequestDetailed(gNewsSourceObj, keywordAnd, startDate, endDate);
+  const { startDate: adjustedStartDate, endDate: adjustedEndDate } =
+    await checkRequestAndModifyDates(
+      andString,
+      orString,
+      notString,
+      startDate,
+      endDate,
+      gNewsSourceObj,
+      requestWindowInDays
+    );
+  console.log(
+    `-> Working on request for query object id: ${queryArgumentObjectsArray[index]?.id}, startDate: ${adjustedStartDate} - ${adjustedEndDate}`
+  );
 
+  //process.exit(1); // 👈 this ends the entire Node.js process
   // --- MODIFIED CODE ---
   // NOTE: This is necessary to account for asynchronicity of makeGNewsApiRequestDetailed
   let requestResponseData = null;
@@ -37,11 +61,11 @@ async function makeRequest() {
     ({ requestResponseData, newsApiRequestObj } =
       await makeGNewsApiRequestDetailed(
         gNewsSourceObj,
-        startDate,
-        endDate,
+        adjustedStartDate,
+        adjustedEndDate,
         andString,
-        null,
-        null
+        orString,
+        notString
       ));
   } catch (error) {
     console.error("Error during GNews API request:", error);
@@ -50,7 +74,8 @@ async function makeRequest() {
   // --- MODIFIED CODE (end) ---
 
   // Move to the next keyword, wrap around at the end
-  index = (index + 1) % andString.length;
+  // index = (index + 1) % andString.length;
+  index = (index + 1) % queryArgumentObjectsArray.length;
 
   // Store articles and update NewsApiRequest
   await storeGNewsArticles(requestResponseData, newsApiRequestObj);
