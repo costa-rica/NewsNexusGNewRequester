@@ -18,6 +18,13 @@ let index = 0;
 console.log(process.env.APP_NAME);
 
 async function makeRequest() {
+  console.log(
+    `--------------------------------------------------------------------------------`
+  );
+  console.log(`- Start NewsNexusGNewsRequester ${new Date().toISOString()} --`);
+  console.log(
+    `--------------------------------------------------------------------------------`
+  );
   const queryArgumentObjectsArray = readQueryParametersFromXlsxFile();
   const requestWindowInDays = 14; // how many days from startDate to endDate
   const andString = queryArgumentObjectsArray[index].andString;
