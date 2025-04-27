@@ -9,22 +9,18 @@ const {
 const {
   readQueryParametersFromXlsxFile,
 } = require("./modules/utilitiesReadFiles");
-// const keywordAnd = ["hazard", "choke", "injury", "atv", "sports"];
-// const keywordAnd = ["hazard", "choke"];
-// const keywordOr = ["hazard", "choke", "injury", "atv", "sports"];
-// const keywordNot = ["hazard", "choke", "injury", "atv", "sports"];
 
 let index = 0;
 console.log(process.env.APP_NAME);
+console.log(
+  `--------------------------------------------------------------------------------`
+);
+console.log(`- Start NewsNexusGNewsRequester ${new Date().toISOString()} --`);
+console.log(
+  `--------------------------------------------------------------------------------`
+);
 
 async function makeRequest() {
-  console.log(
-    `--------------------------------------------------------------------------------`
-  );
-  console.log(`- Start NewsNexusGNewsRequester ${new Date().toISOString()} --`);
-  console.log(
-    `--------------------------------------------------------------------------------`
-  );
   const queryArgumentObjectsArray = readQueryParametersFromXlsxFile();
   const requestWindowInDays = 14; // how many days from startDate to endDate
   const andString = queryArgumentObjectsArray[index].andString;
