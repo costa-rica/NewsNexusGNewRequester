@@ -13,15 +13,18 @@ console.error = (...args) => {
 
 // require("./index");
 
-// Time check to only run at 1AM
+// Time check: Only run between 5:50 AM and 6:10 AM UTC (time of the Ubuntu server)
 const now = new Date();
-const currentHour = now.getHours();
+const currentMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+const startMinutes = 5 * 60 + 50; // 5:50 AM UTC
+const endMinutes = 6 * 60 + 10; // 6:10 AM UTC
 
-if (currentHour === 1) {
-  // Only run at 1AM
-  console.log(`Running NewsNexusGNewRequester at 1AM`);
+if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+  console.log(`Running NewsNexusGNewRequester between 5:50 and 6:10 AM UTC`);
   require("./index");
 } else {
-  console.log(`Not 1AM yet (current hour: ${currentHour}), exiting.`);
+  console.log(
+    `Not within allowed time window (5:50–6:10 AM UTC), exiting. Current UTC time: ${now.toISOString()}`
+  );
   process.exit(0);
 }
