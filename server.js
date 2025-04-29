@@ -11,4 +11,17 @@ console.error = (...args) => {
   originalError(prefix, ...args);
 };
 
-require("./index");
+// require("./index");
+
+// Time check to only run at 1AM
+const now = new Date();
+const currentHour = now.getHours();
+
+if (currentHour === 1) {
+  // Only run at 1AM
+  console.log(`Running NewsNexusGNewRequester at 1AM`);
+  require("./index");
+} else {
+  console.log(`Not 1AM yet (current hour: ${currentHour}), exiting.`);
+  process.exit(0);
+}
