@@ -75,12 +75,14 @@ async function makeRequest() {
     return; // prevent proceeding to storeGNewsArticles if request failed
   }
   // --- MODIFIED CODE (end) ---
-
-  // Store articles and update NewsApiRequest
-  await storeGNewsArticles(requestResponseData, newsApiRequestObj);
-  console.log("Request completed");
-  console.log(`newsApiRequestObj: ${newsApiRequestObj}`);
-
+  if (!requestResponseData?.articles) {
+    console.log("No articles received from GNews API");
+  } else {
+    // Store articles and update NewsApiRequest
+    await storeGNewsArticles(requestResponseData, newsApiRequestObj);
+    console.log("Request completed");
+    console.log(`newsApiRequestObj: ${newsApiRequestObj}`);
+  }
   // Move to the next keyword, wrap around at the end
   index = (index + 1) % queryArgumentObjectsArray.length;
 

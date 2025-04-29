@@ -94,8 +94,9 @@ async function makeGNewsApiRequestDetailed(
         true
       );
       // ⛔ Kill the process immediately
-      console.error("No articles received from GNews API. Exiting...");
-      process.exit(1); // 👈 this ends the entire Node.js process
+      // console.error("No articles received from GNews API. Exiting...");
+      // process.exit(1); // 👈 this ends the entire Node.js process
+      return { requestResponseData, newsApiRequestObj };
     }
 
     // Step 4: create new NewsApiRequest
