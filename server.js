@@ -21,7 +21,7 @@ const endMinutes = 6 * 60 + 10; // 6:10 AM UTC
 
 if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
   console.log(`Running NewsNexusGNewRequester between 5:50 and 6:10 AM UTC`);
-  require("./index");
+  require("./indexAutomated");
 } else {
   console.log(
     `Not within allowed time window (5:50–6:10 AM UTC), exiting. Current UTC time: ${now.toISOString()}`
