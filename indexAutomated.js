@@ -21,7 +21,9 @@ console.log(
 );
 
 async function makeRequestAutomated() {
-  const queryArgumentObjectsArray = readQueryParametersFromXlsxFile();
+  const queryArgumentObjectsArray = readQueryParametersFromXlsxFile(
+    process.env.PATH_AND_FILENAME_FOR_QUERY_SPREADSHEET_AUTOMATED
+  );
   const requestWindowInDays = 14; // how many days from startDate to endDate
   const andString = queryArgumentObjectsArray[index].andString;
   const orString = queryArgumentObjectsArray[index].orString;

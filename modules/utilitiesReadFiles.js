@@ -3,9 +3,7 @@ require("dotenv").config();
 const path = require("path");
 const fs = require("fs");
 
-function readQueryParametersFromXlsxFile() {
-  const filePath = process.env.PATH_AND_FILENAME_FOR_QUERY_SPREADSHEET;
-
+function readQueryParametersFromXlsxFile(filePath) {
   if (!filePath || !fs.existsSync(filePath)) {
     throw new Error(`Excel file not found at path: ${filePath}`);
   }

@@ -22,7 +22,9 @@ console.log(
 );
 
 async function makeRequest() {
-  const queryArgumentObjectsArray = readQueryParametersFromXlsxFile();
+  const queryArgumentObjectsArray = readQueryParametersFromXlsxFile(
+    process.env.PATH_AND_FILENAME_FOR_QUERY_SPREADSHEET_MANUAL
+  );
   const requestWindowInDays = 30; // How many days from startDate to endDate
 
   if (currentStartDates.length === 0) {
