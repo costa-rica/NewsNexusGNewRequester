@@ -19,6 +19,7 @@ console.log(`- Start NewsNexusGNewsRequester ${new Date().toISOString()} --`);
 console.log(
   `--------------------------------------------------------------------------------`
 );
+let intervalId;
 
 async function makeRequestAutomated() {
   const queryArgumentObjectsArray = readQueryParametersFromXlsxFile(
@@ -91,13 +92,14 @@ async function makeRequestAutomated() {
   // Check if adjustedEndDate is today or in the future and if index has looped through all queries
   const today = new Date().toISOString().split("T")[0];
   if (adjustedEndDate >= today && index === 0) {
-    console.log("All queries processed up to current date. Exiting...");
-    process.exit(0);
+    // console.log("All queries processed up to current date. Exiting...");
+    // process.exit(0);
+    console.log(
+      "All queries processed up to current date. Stopping requests but keeping process alive."
+    );
+    clearInterval(intervalId);
   }
 }
 
-function makeRequests() {
-  console.log("- running makeRequests()");
-}
 // Start the interval to run once per second
-setInterval(makeRequestAutomated, 1000);
+intervalId = setInterval(makeRequestAutomated, 1000);

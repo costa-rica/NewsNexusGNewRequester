@@ -26,5 +26,9 @@ if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
   console.log(
     `Not within allowed time window (5:50–6:10 AM UTC), exiting. Current UTC time: ${now.toISOString()}`
   );
-  process.exit(0);
+  // Stay alive doing nothing — keep PM2 app in 'online' state
+  setInterval(() => {
+    // Optional: you can add a very light heartbeat log every hour
+    console.log("Idle - waiting for next cron window...");
+  }, 1000 * 60 * 60); // 1 hour interval
 }
