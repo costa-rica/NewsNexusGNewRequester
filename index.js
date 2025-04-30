@@ -104,7 +104,7 @@ async function makeRequest() {
 }
 
 // Start the interval to run once per second
-setInterval(makeRequest, 1000);
+setInterval(makeRequest, 300);
 
 // // NewsNexusGNewsRequester - Basic keyword requester
 // require("dotenv").config();
