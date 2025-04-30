@@ -13,18 +13,19 @@ console.error = (...args) => {
 
 // require("./index");
 
-// Time check: Only run between 5:50 AM and 6:10 AM UTC (time of the Ubuntu server)
+// Time check: Only run between 20:50 and 21:10 UTC (time of the Ubuntu server)
+const targetTimeToStartAutomation = 21;
 const now = new Date();
 const currentMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
-const startMinutes = 5 * 60 + 50; // 5:50 AM UTC
-const endMinutes = 6 * 60 + 10; // 6:10 AM UTC
+const startMinutes = (targetTimeToStartAutomation - 1) * 60 + 50; // 20:50 UTC
+const endMinutes = targetTimeToStartAutomation * 60 + 30; // 21:10 UTC
 
 if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
-  console.log(`Running NewsNexusGNewRequester between 5:50 and 6:10 AM UTC`);
+  console.log(`Running NewsNexusGNewRequester between 20:50 and 21:10 UTC`);
   require("./indexAutomated");
 } else {
   console.log(
-    `Not within allowed time window (5:50–6:10 AM UTC), exiting. Current UTC time: ${now.toISOString()}`
+    `Not within allowed time window (20:50–21:10 UTC), exiting. Current UTC time: ${now.toISOString()}`
   );
   // Stay alive doing nothing — keep PM2 app in 'online' state
   setInterval(() => {
