@@ -30,3 +30,9 @@ PATH_AND_FILENAME_FOR_QUERY_SPREADSHEET_MANUAL=/Users/nickrodriguez/Downloads/Ne
 3. run `node index.js`
 4. This will create requests for each row from startDate to startDate + 7 days -- or whatever amount of days assign in `requestWindowInDays`
 5. Loops over list of `queryArgumentObjectsArray` and checks the NewsApiRequest table for last reques to similar type then uses the dates of last request to create new startDate and endDate for search the api.
+
+## GNews reqeusts
+
+- GNews uses Europe / Zurich timezone to track reqeust limits
+- 9pm UTC is 11pm Zurich time
+- this time is decided because it will allow the KM team to submit requests during day and the execess reqeusts will be used by the automation.
