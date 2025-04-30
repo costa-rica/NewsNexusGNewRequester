@@ -111,6 +111,7 @@ async function makeGNewsApiRequestDetailed(
       andString: andString,
       orString: orString,
       notString: notString,
+      isFromAutomation: true,
     });
   } else {
     newsApiRequestObj = requestUrl;
