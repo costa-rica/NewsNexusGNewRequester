@@ -5,7 +5,8 @@ const fs = require("fs");
 
 function readQueryParametersFromXlsxFile(filePath) {
   if (!filePath || !fs.existsSync(filePath)) {
-    throw new Error(`Excel file not found at path: ${filePath}`);
+    console.log(`Shutting Down: Excel file not found at path: ${filePath} `);
+    process.exit(1);
   }
 
   // Read the workbook

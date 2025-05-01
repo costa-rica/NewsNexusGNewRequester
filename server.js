@@ -17,19 +17,19 @@ console.error = (...args) => {
 const targetTimeToStartAutomation = 21;
 const now = new Date();
 const currentMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
-const startMinutes = (targetTimeToStartAutomation - 1) * 60 + 50; // 20:50 UTC
-const endMinutes = targetTimeToStartAutomation * 60 + 30; // 21:10 UTC
+const startMinutes = (targetTimeToStartAutomation - 1) * 60 + 55; // 20:50 UTC
+const endMinutes = targetTimeToStartAutomation * 60 + 5; // 21:10 UTC
 
 if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
-  console.log(`Running NewsNexusGNewRequester between 20:50 and 21:10 UTC`);
+  console.log(`Running NewsNexusGNewRequester between 20:55 and 21:05 UTC`);
   require("./indexAutomated");
 } else {
   console.log(
-    `Not within allowed time window (20:50–21:10 UTC), exiting. Current UTC time: ${now.toISOString()}`
+    `Not within allowed time window (20:55–21:05 UTC), exiting. Current UTC time: ${now.toISOString()}`
   );
-  // Stay alive doing nothing — keep PM2 app in 'online' state
-  setInterval(() => {
-    // Optional: you can add a very light heartbeat log every hour
-    console.log("Idle - waiting for next cron window...");
-  }, 1000 * 60 * 60); // 1 hour interval
+  // // Stay alive doing nothing — keep PM2 app in 'online' state
+  // setInterval(() => {
+  //   // Optional: you can add a very light heartbeat log every hour
+  //   console.log("Idle - waiting for next cron window...");
+  // }, 1000 * 60 * 60); // 1 hour interval
 }
