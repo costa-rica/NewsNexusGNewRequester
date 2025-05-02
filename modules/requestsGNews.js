@@ -49,8 +49,6 @@ async function makeGNewsApiRequestDetailed(
   }
 
   if (startDate) {
-    // queryParams.push(`from=${startDate}`);
-    // const formattedStartDate = new Date(startDate).toISOString();
     const formattedStartDate = new Date(startDate)
       .toISOString()
       .replace(".000", "");
@@ -58,8 +56,6 @@ async function makeGNewsApiRequestDetailed(
   }
 
   if (endDate) {
-    // queryParams.push(`to=${endDate}`);
-    // const formattedEndDate = new Date(endDate).toISOString();
     const formattedEndDate = new Date(endDate)
       .toISOString()
       .replace(".000", "");
@@ -73,16 +69,14 @@ async function makeGNewsApiRequestDetailed(
   queryParams.push(`apikey=${sourceObj.apiKey}`);
 
   const requestUrl = `${sourceObj.url}search?${queryParams.join("&")}`;
-  console.log(` [in makeGNewsApiRequestDetailed] requestUrl: ${requestUrl}`);
 
   let status = "success";
   let requestResponseData = null;
   let newsApiRequestObj = null;
   if (process.env.ACTIVATE_API_REQUESTS_TO_OUTSIDE_SOURCES === "true") {
     const response = await fetch(requestUrl);
-    console.log(`response_statue: ${response.status}`);
+    // console.log(`response_statue: ${response.status}`);
     requestResponseData = await response.json();
-    // console.log(requestResponseData);
 
     if (!requestResponseData?.articles) {
       status = "error";
@@ -93,9 +87,6 @@ async function makeGNewsApiRequestDetailed(
         requestResponseData,
         true
       );
-      // ⛔ Kill the process immediately
-      // console.error("No articles received from GNews API. Exiting...");
-      // process.exit(1); // 👈 this ends the entire Node.js process
       return { requestResponseData, newsApiRequestObj };
     }
 
@@ -121,11 +112,7 @@ async function makeGNewsApiRequestDetailed(
 }
 
 // Store the articles of a single request in Aritcle and update NewsApiRequest
-async function storeGNewsArticles(
-  requestResponseData,
-  newsApiRequestObj
-  // keywordString
-) {
+async function storeGNewsArticles(requestResponseData, newsApiRequestObj) {
   // leverages the hasOne association from the NewsArticleAggregatorSource model
   const gNewsSource = await NewsArticleAggregatorSource.findOne({
     where: { nameOfOrg: "GNews" },
@@ -136,8 +123,6 @@ async function storeGNewsArticles(
   try {
     let countOfArticlesSavedToDbFromRequest = 0;
     for (let article of requestResponseData.articles) {
-      // Append article
-
       const existingArticle = await Article.findOne({
         where: { url: article.url },
       });
@@ -164,11 +149,9 @@ async function storeGNewsArticles(
 
     writeResponseDataFromNewsAggregator(
       gNewsSource.id,
-      // keyword?.keywordId,
       newsApiRequestObj,
       requestResponseData,
       false
-      // newsApiRequest.url
     );
   } catch (error) {
     console.error(error);
@@ -178,7 +161,6 @@ async function storeGNewsArticles(
       newsApiRequestObj,
       requestResponseData,
       true
-      // newsApiRequest.url
     );
   }
 }

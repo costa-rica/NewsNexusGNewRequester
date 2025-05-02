@@ -1,4 +1,6 @@
-# NewsNexusGNewsRequester
+# NewsNexusGNewsRequester - OBE
+
+This project is no longer in use. This has been replaced by [NewsNexusGNewsRequester01](https://github.com/costa-rica/NewsNexusGNewsRequester01)
 
 ## chatgpt prompt:
 

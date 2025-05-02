@@ -57,7 +57,6 @@ async function makeRequestAutomated() {
     `-> Working on request for query object id: ${queryArgumentObjectsArray[index]?.id}, startDate: ${adjustedStartDate} - ${adjustedEndDate}`
   );
 
-  //process.exit(1); // 👈 this ends the entire Node.js process
   // --- MODIFIED CODE ---
   // NOTE: This is necessary to account for asynchronicity of makeGNewsApiRequestDetailed
   let requestResponseData = null;
@@ -83,8 +82,7 @@ async function makeRequestAutomated() {
   } else {
     // Store articles and update NewsApiRequest
     await storeGNewsArticles(requestResponseData, newsApiRequestObj);
-    console.log("Request completed");
-    console.log(`newsApiRequestObj: ${newsApiRequestObj}`);
+    console.log(`completed NewsApiRequest.id: ${newsApiRequestObj.id}`);
   }
   // Move to the next keyword, wrap around at the end
   index = (index + 1) % queryArgumentObjectsArray.length;
@@ -92,11 +90,7 @@ async function makeRequestAutomated() {
   // Check if adjustedEndDate is today or in the future and if index has looped through all queries
   const today = new Date().toISOString().split("T")[0];
   if (adjustedEndDate >= today && index === 0) {
-    // console.log("All queries processed up to current date. Exiting...");
-    // process.exit(0);
-    console.log(
-      "All queries processed up to current date. Stopping requests but keeping process alive."
-    );
+    console.log("All queries processed up to current date. Stopping requests.");
     clearInterval(intervalId);
   }
 }
